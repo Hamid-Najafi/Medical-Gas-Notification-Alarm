@@ -1,0 +1,15 @@
+<svg id="closed" xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke: #000;
+        stroke-width: 25px;
+        fill-rule: evenodd;
+      }
+    </style>
+  </defs>
+  <path class="cls-1" d="M106,101h989a5,5,0,0,1,5,5v988.47a5,5,0,0,1-5,5H106a5,5,0,0,1-5-5V106A5,5,0,0,1,106,101Z"/>
+  <path id="Rectangle_1_copy" data-name="Rectangle 1 copy" class="cls-1" d="M258.25,253.25h684.5a5,5,0,0,1,5,5v684a5,5,0,0,1-5,5H258.25a5,5,0,0,1-5-5v-684A5,5,0,0,1,258.25,253.25Z"/>
+  <path class="cls-1" d="M733,587.759H878a1,1,0,0,1,1,1v20.983a1,1,0,0,1-1,1H733a1,1,0,0,1-1-1V588.759A1,1,0,0,1,733,587.759Z"/>
+</svg>

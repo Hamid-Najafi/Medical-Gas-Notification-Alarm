@@ -45,17 +45,23 @@ echo "-------------------------------------"
 echo "Installing Qt & Tools"
 echo "-------------------------------------"
 apt install -y mesa-common-dev libfontconfig1 libxcb-xinerama0 libglu1-mesa-dev
-apt install -y qtbase5-dev qt5-qmake libqt5quickcontrols2-5 libqt5virtualkeyboard5* qtdeclarative5-dev qtmultimedia5* libqt5serial*  libqt5multimedia* libqt5svg5-dev libqt5qml5 libqt5quick5  qttools5*
-apt install -y qml-module-qtquick* qml-module-qt-labs-settings qml-module-qtgraphicaleffects 
+apt install -q -y qt5* qttools5* qtmultimedia5* qtwebengine5* qtvirtualkeyboard* qtdeclarative* qt3d*
+apt install -q -y qtbase5* 
+apt install -q -y libqt5*
+apt install -q -y qml-module*
 echo "-------------------------------------"
 echo "Installing Contold Panel Application"
 echo "-------------------------------------"
 url="https://github.com/Hamid-Najafi/Medical-Gas-Notification-Alarm.git"
-folder="/home/fumpict/Medical-Gas-Notification-Alarm"
-[ -d "${folder}" ] && rm -rf "${folder}"
-git clone "${url}" "${folder}"
+
 folder="/home/fumpict/C1"
 [ -d "${folder}" ] && rm -rf "${folder}"
+
+folder="/home/fumpict/Medical-Gas-Notification-Alarm"
+[ -d "${folder}" ] && rm -rf "${folder}"
+
+git clone "${url}" "${folder}"
+
 cd /home/fumpict/Medical-Gas-Notification-Alarm/MGNA
 touch -r *.*
 qmake

@@ -42,5 +42,30 @@
         <file>images/info.svg</file>
         <file>images/mute.svg</file>
         <file>images/44.png</file>
+        <file>images/background1.jpg</file>
+        <file>images/background2.jpg</file>
+        <file>images/door_closed1.svg</file>
+        <file>images/door_open1.svg</file>
+        <file>images/power1.svg</file>
+        <file>images/pressure1.svg</file>
+        <file>images/setting1.svg</file>
+        <file>GasBoxVector.qml</file>
+        <file>images/AIR_error.png</file>
+        <file>images/AIR_ok.png</file>
+        <file>images/N2O_error.png</file>
+        <file>images/N2O_ok.png</file>
+        <file>images/O2_error.png</file>
+        <file>images/O2_ok.png</file>
+        <file>images/VAC_error.png</file>
+        <file>images/VAC_ok.png</file>
+        <file>Dashboard.qml</file>
+        <file>images/bell.svg</file>
+        <file>images/dashboard.svg</file>
+        <file>images/settings.svg</file>
+        <file>IconButton.qml</file>
+        <file>images/air.png</file>
+        <file>images/n2o.png</file>
+        <file>images/o2.png</file>
+        <file>images/vac.png</file>
     </qresource>
 </RCC>

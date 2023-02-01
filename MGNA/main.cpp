@@ -2,7 +2,7 @@
 #include <QQmlApplicationEngine>
 
 #include <QLocale>
-#include <QTranslator>
+//#include <QTranslator>
 
 #include <QtQml>
 
@@ -11,6 +11,10 @@
 
 int main(int argc, char *argv[])
 {
+
+    qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
+
+
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
@@ -19,17 +23,17 @@ int main(int argc, char *argv[])
 
     app.setOrganizationName("C1 Tech");
     app.setOrganizationDomain("Nourbakhsh.com");
-    app.setApplicationName("C1 Tech Pass Box");
+    app.setApplicationName("FUMP-ICT Medical-Gas-Notification-Alarm");
 
-    QTranslator translator;
-    const QStringList uiLanguages = QLocale::system().uiLanguages();
-    for (const QString &locale : uiLanguages) {
-        const QString baseName = "passBox_" + QLocale(locale).name();
-        if (translator.load(":/i18n/" + baseName)) {
-            app.installTranslator(&translator);
-            break;
-        }
-    }
+//    QTranslator translator;
+//    const QStringList uiLanguages = QLocale::system().uiLanguages();
+//    for (const QString &locale : uiLanguages) {
+//        const QString baseName = "passBox_" + QLocale(locale).name();
+//        if (translator.load(":/i18n/" + baseName)) {
+//            app.installTranslator(&translator);
+//            break;
+//        }
+//    }
 
     qmlRegisterSingletonType(QUrl("qrc:/Colors.qml"), "App", 1, 0, "Colors");
 

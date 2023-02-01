@@ -24,7 +24,11 @@ QtObject {
     readonly property color text_light : "#14202c";
     readonly property color text_element_light : "#dfecf4";
 
-
+    readonly property color transparent: "#01000000";
+    readonly property color red: "#e01d19";
+    readonly property color blue: "#1d19e0";
+    readonly property color green: "#29c71d";
+    readonly property color gray: "#7e7e7e";
     readonly property color background: "#151515";
     readonly property color gradient_top: "#111111";
     readonly property color gradient_bottom: "#6a686b";

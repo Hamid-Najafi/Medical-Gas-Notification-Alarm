@@ -1,5 +1,6 @@
 import QtQuick 2.10
 import QtGraphicalEffects 1.0
+import App 1.0
 Item {
     id:root
     property color background_color: Colors.element_dark

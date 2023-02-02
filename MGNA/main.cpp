@@ -5,6 +5,8 @@
 //#include <QTranslator>
 
 #include <QtQml>
+#include <modbusController.h>
+#include <gpio.h>
 
 #include "ioreader.h"
 #include "rnelapsedtimer.h"
@@ -21,9 +23,9 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
 
-    app.setOrganizationName("C1 Tech");
+    app.setOrganizationName("FUMP-ICT");
     app.setOrganizationDomain("Nourbakhsh.com");
-    app.setApplicationName("FUMP-ICT Medical-Gas-Notification-Alarm");
+    app.setApplicationName("FUMP-ICT Medical Gas Notification Alarm");
 
 //    QTranslator translator;
 //    const QStringList uiLanguages = QLocale::system().uiLanguages();
@@ -39,6 +41,9 @@ int main(int argc, char *argv[])
 
     qmlRegisterType<IOReader>("com.nourbakhsh.IOReader",1,0,"IOReader");
     qmlRegisterType<RNElapsedTimer>("com.nourbakhsh.RNElapsedTimer",1,0,"RNElapsedTimer");
+    qmlRegisterType<ModbusController>("com.nourbakhsh.ModbusController",1,0,"ModbusController");
+    //qmlRegisterSingletonType<ModbusController>("com.nourbakhsh.ModbusController",1,0,"ModbusController" , &ModbusController::qmlInstance);
+    qmlRegisterType<GPIO>("com.nourbakhsh.GPIO",1,0,"GPIO");
 
     QQmlApplicationEngine engine;
 

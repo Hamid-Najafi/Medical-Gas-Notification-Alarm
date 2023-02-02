@@ -4,6 +4,8 @@ import QtGraphicalEffects 1.0
 import QtQuick.VirtualKeyboard 2.4
 import com.nourbakhsh.IOReader 1.0
 import com.nourbakhsh.RNElapsedTimer 1.0
+import com.nourbakhsh.ModbusController 1.0
+import com.nourbakhsh.GPIO 1.0
 import Qt.labs.settings 1.0
 import App 1.0
 
@@ -16,9 +18,152 @@ Window {
     property bool isDark : true
     property int mState: 1
 
+    property int gpio_number_buzzer: 20
+    property int gpio_number_relay: 3
+    property int gpio_number_input1: 0
+    property int gpio_number_input2: 6
+    property int gpio_number_input3: 11
+    property int gpio_number_input4: 12
+    property bool isInited: false
+
+    property bool isMuted: false
+    property bool hasAlarm: false
+    property bool fullMuted: false
+
     width: 800
     height: 480
     visible: true
+
+    RNElapsedTimer{
+        id: muteTimer
+
+    }
+    Timer{
+        id: timerBell
+        interval: 500
+        property bool lastActive: false
+        running: true;
+        repeat: true
+        onTriggered: {
+
+//            console.log(imgBell.isActive);
+//            console.log(root.isMuted);
+//            console.log(root.fullMuted);
+
+            if((!imgBell.isActive && !root.hasAlarm )){
+                timerBell.lastActive = false;
+                modbusController.setCoilWithId(0,false);
+                gpio.gpio_set_value(root.gpio_number_buzzer,false);
+                modbusController.setCoilWithId(1,false);
+                gpio.gpio_set_value(root.gpio_number_relay,false);
+//                console.log("!imgBell.isActive");
+                return;
+            }
+            if((root.hasAlarm || imgBell.isActive) && (!root.isMuted && !root.fullMuted)){
+                timerBell.lastActive = !timerBell.lastActive;
+                modbusController.setCoilWithId(0,timerBell.lastActive);
+                gpio.gpio_set_value(root.gpio_number_buzzer,timerBell.lastActive);
+                modbusController.setCoilWithId(1,true);
+                gpio.gpio_set_value(root.gpio_number_relay,true);
+//                console.log("imgBell.isActive && (!root.isMuted || !root.fullMuted)");
+                return;
+
+            }
+            if((imgBell.isActive || root.hasAlarm) && (root.isMuted  || root.fullMuted) ){
+                timerBell.lastActive = false;
+                modbusController.setCoilWithId(0,timerBell.lastActive);
+                gpio.gpio_set_value(root.gpio_number_buzzer,timerBell.lastActive);
+                modbusController.setCoilWithId(1,false);
+                gpio.gpio_set_value(root.gpio_number_relay,false);
+//                console.log("imgBell.isActive && (root.isMuted  || root.fullMuted) ");
+                return;
+            }
+
+        }
+    }
+
+    Timer {
+        interval: 50;
+        running: true;
+        repeat: true
+        onTriggered: {
+            root.setHasAlarm();
+
+
+            if(muteTimer.elapsed > (setting.timer_time * 1000) && root.isMuted ){
+                root.isMuted = false;
+//                console.log("muteTimer.elapsed > (setting.timer_time * 1000) && root.isMuted ");
+                muteTimer.stop();
+            }
+
+//            if(root.hasAlarm && (!root.isMuted && !root.fullMuted)){
+//                modbusController.setCoilWithId(1,true);
+//            }
+//            else{
+//                modbusController.setCoilWithId(1,false);
+//            }
+
+
+            if(!root.isInited) return;
+            let in1 = !gpio.gpio_get_value(root.gpio_number_input1);
+            let in2 = !gpio.gpio_get_value(root.gpio_number_input2);
+            let in3 = !gpio.gpio_get_value(root.gpio_number_input3);
+            let in4 = !gpio.gpio_get_value(root.gpio_number_input4);
+            modbusController.setDiscreteInputWithId(1,in1);
+            dashboard.o2_hasError = in1;
+            modbusController.setDiscreteInputWithId(3,in2);
+            dashboard.n2o_hasError = in2;
+            modbusController.setDiscreteInputWithId(5,in3);
+            dashboard.air_hasError = in3;
+            modbusController.setDiscreteInputWithId(7,in4);
+            dashboard.vac_hasError = in4;
+        }
+    }
+
+    ModbusController{
+        id: modbusController
+        Component.onCompleted: {
+            console.log(isConnected);
+        }
+
+        onCoilUpdated: function(id,val){
+            if(id == 0 && root.isInited){
+                gpio.gpio_set_value(root.gpio_number_buzzer,val);
+            }
+            if(id == 1 && root.isInited){
+                gpio.gpio_set_value(root.gpio_number_relay,val);
+            }
+        }
+        onIsConnectedChanged: {
+            console.log(isConnected);
+        }
+    }
+
+    GPIO{
+        id: gpio
+        Component.onCompleted: {
+            // Buzzer
+            gpio_export(root.gpio_number_buzzer);
+            gpio_set_dir(root.gpio_number_buzzer,1);
+            // Relay
+            gpio_export(root.gpio_number_relay);
+            gpio_set_dir(root.gpio_number_relay,1);
+            // Input 1
+            gpio_export(root.gpio_number_input1);
+            gpio_set_dir(root.gpio_number_input1,0);
+            // Input 2
+            gpio_export(root.gpio_number_input2);
+            gpio_set_dir(root.gpio_number_input2,0);
+            // Input 3
+            gpio_export(root.gpio_number_input3);
+            gpio_set_dir(root.gpio_number_input3,0);
+            // Input 4
+            gpio_export(root.gpio_number_input4);
+            gpio_set_dir(root.gpio_number_input4,0);
+
+            root.isInited = true;
+        }
+    }
 
     onMStateChanged: {
         root.pageChanged();
@@ -53,8 +198,6 @@ Window {
         }
     }
 
-
-
     Settings {
         id: settings
         property string theme: "dark"
@@ -86,6 +229,24 @@ Window {
         //        property alias unlockTime: setting.mUlockTime
         property alias state: root.mState
         //        property alias doors: setting.doorsCount
+        onO2_isActiveChanged: {
+            modbusController.setDiscreteInputWithId(0,setting.o2_isActive);
+        }
+        onN2o_isActiveChanged: {
+            modbusController.setDiscreteInputWithId(2,setting.n2o_isActive);
+        }
+        onAir_isActiveChanged: {
+            modbusController.setDiscreteInputWithId(4,setting.air_isActive);
+        }
+        onVac_isActiveChanged: {
+            modbusController.setDiscreteInputWithId(6,setting.vac_isActive);
+        }
+        Component.onCompleted: {
+            modbusController.setDiscreteInputWithId(0,setting.o2_isActive);
+            modbusController.setDiscreteInputWithId(2,setting.n2o_isActive);
+            modbusController.setDiscreteInputWithId(4,setting.air_isActive);
+            modbusController.setDiscreteInputWithId(6,setting.vac_isActive);
+        }
 
     }
 
@@ -167,6 +328,7 @@ Window {
         air_header: setting.air_header
         air_subHeader: setting.air_subHeader
         visible: root.mState == 1
+
     }
     SettingPage{
         id: setting
@@ -190,6 +352,18 @@ Window {
         }
     }
 
+    InfoPage{
+        id: info
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: imgIcon.bottom
+        anchors.topMargin: 16
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 56 + 16 + 16
+        visible: root.mState == 3
+        clip: true
+    }
+
     //    Rectangle{
     //        id: rectHalo
     //        height: 56 + 16 + 16
@@ -205,7 +379,7 @@ Window {
         mHeight: 56
         mColor: Colors.text_dark
         mSource: "qrc:/images/settings.svg"
-        anchors.right: parent.right
+        anchors.right: root.mState == 3 ? imgHome.left : parent.right
         anchors.rightMargin: 16
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 16
@@ -277,7 +451,9 @@ Window {
         anchors.bottomMargin: 16
         mColor: Colors.text_dark
         mSource: "qrc:/images/info.svg"
+        visible: root.mState != 3
         onMClicked: {
+            root.mState = 3;
         }
     }
     //    Image {
@@ -329,9 +505,11 @@ Window {
         visible: root.mState == 1
         onMClicked: {
             isActive = !isActive;
+//            modbusController.setCoilWithId(0,isActive);
+//            modbusController.setCoilWithId(1,isActive);
         }
     }
-    IconButton{
+    IconButtonHold{
         id: imgMute
         mWidth: 56
         mHeight: 56
@@ -344,7 +522,18 @@ Window {
         mSource: "qrc:/images/mute.svg"
         visible: root.mState == 1
         onMClicked: {
-            isActive = !isActive;
+//            isActive = !isActive;
+            muteTimer.stop();
+            muteTimer.start();
+            console.log("Mute");
+            root.isMuted = true;
+            root.fullMuted = false;
+        }
+        onMHolded: {
+            //muteTimer.start();
+            console.log("fullMute");
+            root.isMuted = true;
+            root.fullMuted = true;
         }
     }
 
@@ -434,138 +623,150 @@ Window {
             setting.mState = "time";
         }
     }
-//    Image {
-//        id: imgMute
-//        width: 56
-//        height: 56
-//        anchors.right: imgSetting.left
-//        anchors.rightMargin: 16
-//        anchors.bottom: parent.bottom
-//        anchors.bottomMargin: 16
-//        fillMode: Image.PreserveAspectFit
-//        source: "qrc:/images/mute.svg"
-//        sourceSize: Qt.size( 56, 56 )
-//        Image {
-//            id: imgMuteInner
-//            source: parent.source
-//            width: 0
-//            height: 0
-//        }
-//        MouseArea
-//        {
-//            //            anchors.fill: parent
-//            //            onClicked: {
-//            //                root.mState = 2
-//            //            }
+    //    Image {
+    //        id: imgMute
+    //        width: 56
+    //        height: 56
+    //        anchors.right: imgSetting.left
+    //        anchors.rightMargin: 16
+    //        anchors.bottom: parent.bottom
+    //        anchors.bottomMargin: 16
+    //        fillMode: Image.PreserveAspectFit
+    //        source: "qrc:/images/mute.svg"
+    //        sourceSize: Qt.size( 56, 56 )
+    //        Image {
+    //            id: imgMuteInner
+    //            source: parent.source
+    //            width: 0
+    //            height: 0
+    //        }
+    //        MouseArea
+    //        {
+    //            //            anchors.fill: parent
+    //            //            onClicked: {
+    //            //                root.mState = 2
+    //            //            }
 
-//        }
-//    }
-//    ColorOverlay{
-//        anchors.fill: imgMute
-//        source: imgMute
-//        color: "#737373"
-//    }
+    //        }
+    //    }
+    //    ColorOverlay{
+    //        anchors.fill: imgMute
+    //        source: imgMute
+    //        color: "#737373"
+    //    }
 
-//    Image {
-//        id: imgChart
-//        width: 56
-//        height: 56
-//        anchors.right: imgMute.left
-//        anchors.rightMargin: 16
-//        anchors.bottom: parent.bottom
-//        anchors.bottomMargin: 16
-//        fillMode: Image.PreserveAspectFit
-//        source: "qrc:/images/chart.svg"
-//        sourceSize: Qt.size( 56, 56 )
-//        Image {
-//            id: imgChartInner
-//            source: parent.source
-//            width: 0
-//            height: 0
-//        }
-//        MouseArea
-//        {
-//            //            anchors.fill: parent
-//            //            onClicked: {
-//            //                root.mState = 2
-//            //            }
+    //    Image {
+    //        id: imgChart
+    //        width: 56
+    //        height: 56
+    //        anchors.right: imgMute.left
+    //        anchors.rightMargin: 16
+    //        anchors.bottom: parent.bottom
+    //        anchors.bottomMargin: 16
+    //        fillMode: Image.PreserveAspectFit
+    //        source: "qrc:/images/chart.svg"
+    //        sourceSize: Qt.size( 56, 56 )
+    //        Image {
+    //            id: imgChartInner
+    //            source: parent.source
+    //            width: 0
+    //            height: 0
+    //        }
+    //        MouseArea
+    //        {
+    //            //            anchors.fill: parent
+    //            //            onClicked: {
+    //            //                root.mState = 2
+    //            //            }
 
-//        }
-//    }
-//    ColorOverlay{
-//        anchors.fill: imgChart
-//        source: imgChart
-//        color: "#737373"
-//    }
+    //        }
+    //    }
+    //    ColorOverlay{
+    //        anchors.fill: imgChart
+    //        source: imgChart
+    //        color: "#737373"
+    //    }
 
-//    Image {
-//        id: imgInfo
-//        width: 56
-//        height: 56
-//        anchors.right: imgChart.left
-//        anchors.rightMargin: 16
-//        anchors.bottom: parent.bottom
-//        anchors.bottomMargin: 16
-//        fillMode: Image.PreserveAspectFit
-//        source: "qrc:/images/info.svg"
-//        sourceSize: Qt.size( 56, 56 )
-//        Image {
-//            id: imgInfoInner
-//            source: parent.source
-//            width: 0
-//            height: 0
-//        }
-//        MouseArea
-//        {
-//            //            anchors.fill: parent
-//            //            onClicked: {
-//            //                root.mState = 2
-//            //            }
+    //    Image {
+    //        id: imgInfo
+    //        width: 56
+    //        height: 56
+    //        anchors.right: imgChart.left
+    //        anchors.rightMargin: 16
+    //        anchors.bottom: parent.bottom
+    //        anchors.bottomMargin: 16
+    //        fillMode: Image.PreserveAspectFit
+    //        source: "qrc:/images/info.svg"
+    //        sourceSize: Qt.size( 56, 56 )
+    //        Image {
+    //            id: imgInfoInner
+    //            source: parent.source
+    //            width: 0
+    //            height: 0
+    //        }
+    //        MouseArea
+    //        {
+    //            //            anchors.fill: parent
+    //            //            onClicked: {
+    //            //                root.mState = 2
+    //            //            }
 
-//        }
-//    }
-//    ColorOverlay{
-//        anchors.fill: imgInfo
-//        source: imgInfo
-//        color: Colors.text_dark
-//    }
+    //        }
+    //    }
+    //    ColorOverlay{
+    //        anchors.fill: imgInfo
+    //        source: imgInfo
+    //        color: Colors.text_dark
+    //    }
 
 
-//    Image {
-//        id: imgAlarm
-//        width: 56
-//        height: 56
-//        anchors.right: imgInfo.left
-//        anchors.rightMargin: 16
-//        anchors.bottom: parent.bottom
-//        anchors.bottomMargin: 16
-//        fillMode: Image.PreserveAspectFit
-//        source: "qrc:/images/alarm.svg"
-//        sourceSize: Qt.size( 56, 56 )
-//        Image {
-//            id: imgAlarmInner
-//            source: parent.source
-//            width: 0
-//            height: 0
-//        }
-//        MouseArea
-//        {
-//            //            anchors.fill: parent
-//            //            onClicked: {
-//            //                root.mState = 2
-//            //            }
+    //    Image {
+    //        id: imgAlarm
+    //        width: 56
+    //        height: 56
+    //        anchors.right: imgInfo.left
+    //        anchors.rightMargin: 16
+    //        anchors.bottom: parent.bottom
+    //        anchors.bottomMargin: 16
+    //        fillMode: Image.PreserveAspectFit
+    //        source: "qrc:/images/alarm.svg"
+    //        sourceSize: Qt.size( 56, 56 )
+    //        Image {
+    //            id: imgAlarmInner
+    //            source: parent.source
+    //            width: 0
+    //            height: 0
+    //        }
+    //        MouseArea
+    //        {
+    //            //            anchors.fill: parent
+    //            //            onClicked: {
+    //            //                root.mState = 2
+    //            //            }
 
-//        }
-//    }
-//    ColorOverlay{
-//        anchors.fill: imgAlarm
-//        source: imgAlarm
-//        color: Colors.danger_light
-//    }
+    //        }
+    //    }
+    //    ColorOverlay{
+    //        anchors.fill: imgAlarm
+    //        source: imgAlarm
+    //        color: Colors.danger_light
+    //    }
 
     function pageChanged(){
         txtHeader.text = root.mState == 1 ? "Dashboard" :
                                             ( root.mState == 2 ? "Settings" : "" )
+    }
+
+    function setHasAlarm(){
+        let hasError = (dashboard.o2_isActive && dashboard.o2_hasError) ||
+                        (dashboard.n2o_isActive&& dashboard.n2o_hasError) ||
+                        (dashboard.vac_isActive && dashboard.vac_hasError) ||
+                        (dashboard.air_isActive && dashboard.air_hasError);
+        root.hasAlarm = hasError;
+        if(!hasError && !imgBell.isActive){
+            root.isMuted = false;
+            root.fullMuted = false;
+        }
     }
 
 }

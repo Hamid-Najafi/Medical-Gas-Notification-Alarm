@@ -67,5 +67,7 @@
         <file>images/n2o.png</file>
         <file>images/o2.png</file>
         <file>images/vac.png</file>
+        <file>IconButtonHold.qml</file>
+        <file>InfoPage.qml</file>
     </qresource>
 </RCC>

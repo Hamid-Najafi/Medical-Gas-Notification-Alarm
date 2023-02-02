@@ -14,10 +14,10 @@ EQ            = =
 
 CC            = gcc
 CXX           = g++
-DEFINES       = -DQT_NO_DEBUG -DQT_VIRTUALKEYBOARD_LIB -DQT_QUICK_LIB -DQT_GUI_LIB -DQT_QMLMODELS_LIB -DQT_QML_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB
+DEFINES       = -DQT_NO_DEBUG -DQT_VIRTUALKEYBOARD_LIB -DQT_QUICK_LIB -DQT_GUI_LIB -DQT_QMLMODELS_LIB -DQT_QML_LIB -DQT_NETWORK_LIB -DQT_SERIALPORT_LIB -DQT_SERIALBUS_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -O2 -Wall -Wextra -D_REENTRANT -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -O2 -Wall -Wextra -D_REENTRANT -fPIC $(DEFINES)
-INCPATH       = -I. -I/usr/include/arm-linux-gnueabihf/qt5 -I/usr/include/arm-linux-gnueabihf/qt5/QtVirtualKeyboard -I/usr/include/arm-linux-gnueabihf/qt5/QtQuick -I/usr/include/arm-linux-gnueabihf/qt5/QtGui -I/usr/include/arm-linux-gnueabihf/qt5/QtQmlModels -I/usr/include/arm-linux-gnueabihf/qt5/QtQml -I/usr/include/arm-linux-gnueabihf/qt5/QtNetwork -I/usr/include/arm-linux-gnueabihf/qt5/QtCore -I. -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++
+INCPATH       = -I. -I/usr/include/arm-linux-gnueabihf/qt5 -I/usr/include/arm-linux-gnueabihf/qt5/QtVirtualKeyboard -I/usr/include/arm-linux-gnueabihf/qt5/QtQuick -I/usr/include/arm-linux-gnueabihf/qt5/QtGui -I/usr/include/arm-linux-gnueabihf/qt5/QtQmlModels -I/usr/include/arm-linux-gnueabihf/qt5/QtQml -I/usr/include/arm-linux-gnueabihf/qt5/QtNetwork -I/usr/include/arm-linux-gnueabihf/qt5/QtSerialPort -I/usr/include/arm-linux-gnueabihf/qt5/QtSerialBus -I/usr/include/arm-linux-gnueabihf/qt5/QtCore -I. -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++
 QMAKE         = /usr/lib/qt5/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -37,10 +37,10 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = passBox1.0.0
-DISTDIR = /root/passBox/.tmp/passBox1.0.0
+DISTDIR = /root/gas/.tmp/passBox1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1
-LIBS          = $(SUBLIBS) /usr/lib/arm-linux-gnueabihf/libQt5VirtualKeyboard.so /usr/lib/arm-linux-gnueabihf/libQt5Quick.so /usr/lib/arm-linux-gnueabihf/libQt5Gui.so /usr/lib/arm-linux-gnueabihf/libQt5QmlModels.so /usr/lib/arm-linux-gnueabihf/libQt5Qml.so /usr/lib/arm-linux-gnueabihf/libQt5Network.so /usr/lib/arm-linux-gnueabihf/libQt5Core.so -lGLESv2 -lpthread   
+LIBS          = $(SUBLIBS) /usr/lib/arm-linux-gnueabihf/libQt5VirtualKeyboard.so /usr/lib/arm-linux-gnueabihf/libQt5Quick.so /usr/lib/arm-linux-gnueabihf/libQt5Gui.so /usr/lib/arm-linux-gnueabihf/libQt5QmlModels.so /usr/lib/arm-linux-gnueabihf/libQt5Qml.so /usr/lib/arm-linux-gnueabihf/libQt5Network.so /usr/lib/arm-linux-gnueabihf/libQt5SerialPort.so /usr/lib/arm-linux-gnueabihf/libQt5SerialBus.so /usr/lib/arm-linux-gnueabihf/libQt5Core.so -lGLESv2 -lpthread   
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -53,17 +53,25 @@ OBJECTS_DIR   = ./
 ####### Files
 
 SOURCES       = colors.cpp \
+		gpio.cpp \
 		ioreader.cpp \
 		main.cpp \
+		modbusController.cpp \
 		rnelapsedtimer.cpp qrc_qml.cpp \
+		moc_gpio.cpp \
 		moc_ioreader.cpp \
+		moc_modbusController.cpp \
 		moc_rnelapsedtimer.cpp
 OBJECTS       = colors.o \
+		gpio.o \
 		ioreader.o \
 		main.o \
+		modbusController.o \
 		rnelapsedtimer.o \
 		qrc_qml.o \
+		moc_gpio.o \
 		moc_ioreader.o \
+		moc_modbusController.o \
 		moc_rnelapsedtimer.o
 DIST          = /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/common/unix.conf \
@@ -186,6 +194,7 @@ DIST          = /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/qt_config.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++/qmake.conf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/exclusive_builds.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/toolchain.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/default_pre.prf \
@@ -205,10 +214,14 @@ DIST          = /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/lex.prf \
 		passBox.pro colors.h \
+		gpio.h \
 		ioreader.h \
+		modbusController.h \
 		rnelapsedtimer.h colors.cpp \
+		gpio.cpp \
 		ioreader.cpp \
 		main.cpp \
+		modbusController.cpp \
 		rnelapsedtimer.cpp
 QMAKE_TARGET  = passBox
 DESTDIR       = 
@@ -342,6 +355,7 @@ Makefile: passBox.pro /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++/qmake.c
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/qt_config.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++/qmake.conf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/exclusive_builds.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/toolchain.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/default_pre.prf \
@@ -484,6 +498,7 @@ Makefile: passBox.pro /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++/qmake.c
 /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/qt_config.prf:
 /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++/qmake.conf:
 /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/spec_post.prf:
+.qmake.stash:
 /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/exclusive_builds.prf:
 /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/toolchain.prf:
 /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/default_pre.prf:
@@ -520,8 +535,8 @@ distdir: FORCE
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents qml.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents colors.h ioreader.h rnelapsedtimer.h $(DISTDIR)/
-	$(COPY_FILE) --parents colors.cpp ioreader.cpp main.cpp rnelapsedtimer.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents colors.h gpio.h ioreader.h modbusController.h rnelapsedtimer.h $(DISTDIR)/
+	$(COPY_FILE) --parents colors.cpp gpio.cpp ioreader.cpp main.cpp modbusController.cpp rnelapsedtimer.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -556,8 +571,10 @@ qrc_qml.cpp: qml.qrc \
 		Colors.qml \
 		GasBox.qml \
 		Door.qml \
+		IconButtonHold.qml \
 		SettingPage.qml \
 		IconButton.qml \
+		InfoPage.qml \
 		GasBoxVector.qml \
 		CircleSlider.qml \
 		main.qml \
@@ -625,18 +642,28 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/data/dummy.cpp
 	g++ -pipe -O2 -Wall -Wextra -dM -E -o moc_predefs.h /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_ioreader.cpp moc_rnelapsedtimer.cpp
+compiler_moc_header_make_all: moc_gpio.cpp moc_ioreader.cpp moc_modbusController.cpp moc_rnelapsedtimer.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_ioreader.cpp moc_rnelapsedtimer.cpp
+	-$(DEL_FILE) moc_gpio.cpp moc_ioreader.cpp moc_modbusController.cpp moc_rnelapsedtimer.cpp
+moc_gpio.cpp: gpio.h \
+		moc_predefs.h \
+		/usr/lib/qt5/bin/moc
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /root/gas/moc_predefs.h -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -I/root/gas -I/usr/include/arm-linux-gnueabihf/qt5 -I/usr/include/arm-linux-gnueabihf/qt5/QtVirtualKeyboard -I/usr/include/arm-linux-gnueabihf/qt5/QtQuick -I/usr/include/arm-linux-gnueabihf/qt5/QtGui -I/usr/include/arm-linux-gnueabihf/qt5/QtQmlModels -I/usr/include/arm-linux-gnueabihf/qt5/QtQml -I/usr/include/arm-linux-gnueabihf/qt5/QtNetwork -I/usr/include/arm-linux-gnueabihf/qt5/QtSerialPort -I/usr/include/arm-linux-gnueabihf/qt5/QtSerialBus -I/usr/include/arm-linux-gnueabihf/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/arm-linux-gnueabihf/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/arm-linux-gnueabihf/11/include -I/usr/local/include -I/usr/include/arm-linux-gnueabihf -I/usr/include gpio.h -o moc_gpio.cpp
+
 moc_ioreader.cpp: ioreader.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /root/passBox/moc_predefs.h -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -I/root/passBox -I/usr/include/arm-linux-gnueabihf/qt5 -I/usr/include/arm-linux-gnueabihf/qt5/QtVirtualKeyboard -I/usr/include/arm-linux-gnueabihf/qt5/QtQuick -I/usr/include/arm-linux-gnueabihf/qt5/QtGui -I/usr/include/arm-linux-gnueabihf/qt5/QtQmlModels -I/usr/include/arm-linux-gnueabihf/qt5/QtQml -I/usr/include/arm-linux-gnueabihf/qt5/QtNetwork -I/usr/include/arm-linux-gnueabihf/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/arm-linux-gnueabihf/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/arm-linux-gnueabihf/11/include -I/usr/local/include -I/usr/include/arm-linux-gnueabihf -I/usr/include ioreader.h -o moc_ioreader.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /root/gas/moc_predefs.h -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -I/root/gas -I/usr/include/arm-linux-gnueabihf/qt5 -I/usr/include/arm-linux-gnueabihf/qt5/QtVirtualKeyboard -I/usr/include/arm-linux-gnueabihf/qt5/QtQuick -I/usr/include/arm-linux-gnueabihf/qt5/QtGui -I/usr/include/arm-linux-gnueabihf/qt5/QtQmlModels -I/usr/include/arm-linux-gnueabihf/qt5/QtQml -I/usr/include/arm-linux-gnueabihf/qt5/QtNetwork -I/usr/include/arm-linux-gnueabihf/qt5/QtSerialPort -I/usr/include/arm-linux-gnueabihf/qt5/QtSerialBus -I/usr/include/arm-linux-gnueabihf/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/arm-linux-gnueabihf/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/arm-linux-gnueabihf/11/include -I/usr/local/include -I/usr/include/arm-linux-gnueabihf -I/usr/include ioreader.h -o moc_ioreader.cpp
+
+moc_modbusController.cpp: modbusController.h \
+		moc_predefs.h \
+		/usr/lib/qt5/bin/moc
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /root/gas/moc_predefs.h -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -I/root/gas -I/usr/include/arm-linux-gnueabihf/qt5 -I/usr/include/arm-linux-gnueabihf/qt5/QtVirtualKeyboard -I/usr/include/arm-linux-gnueabihf/qt5/QtQuick -I/usr/include/arm-linux-gnueabihf/qt5/QtGui -I/usr/include/arm-linux-gnueabihf/qt5/QtQmlModels -I/usr/include/arm-linux-gnueabihf/qt5/QtQml -I/usr/include/arm-linux-gnueabihf/qt5/QtNetwork -I/usr/include/arm-linux-gnueabihf/qt5/QtSerialPort -I/usr/include/arm-linux-gnueabihf/qt5/QtSerialBus -I/usr/include/arm-linux-gnueabihf/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/arm-linux-gnueabihf/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/arm-linux-gnueabihf/11/include -I/usr/local/include -I/usr/include/arm-linux-gnueabihf -I/usr/include modbusController.h -o moc_modbusController.cpp
 
 moc_rnelapsedtimer.cpp: rnelapsedtimer.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /root/passBox/moc_predefs.h -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -I/root/passBox -I/usr/include/arm-linux-gnueabihf/qt5 -I/usr/include/arm-linux-gnueabihf/qt5/QtVirtualKeyboard -I/usr/include/arm-linux-gnueabihf/qt5/QtQuick -I/usr/include/arm-linux-gnueabihf/qt5/QtGui -I/usr/include/arm-linux-gnueabihf/qt5/QtQmlModels -I/usr/include/arm-linux-gnueabihf/qt5/QtQml -I/usr/include/arm-linux-gnueabihf/qt5/QtNetwork -I/usr/include/arm-linux-gnueabihf/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/arm-linux-gnueabihf/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/arm-linux-gnueabihf/11/include -I/usr/local/include -I/usr/include/arm-linux-gnueabihf -I/usr/include rnelapsedtimer.h -o moc_rnelapsedtimer.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /root/gas/moc_predefs.h -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -I/root/gas -I/usr/include/arm-linux-gnueabihf/qt5 -I/usr/include/arm-linux-gnueabihf/qt5/QtVirtualKeyboard -I/usr/include/arm-linux-gnueabihf/qt5/QtQuick -I/usr/include/arm-linux-gnueabihf/qt5/QtGui -I/usr/include/arm-linux-gnueabihf/qt5/QtQmlModels -I/usr/include/arm-linux-gnueabihf/qt5/QtQml -I/usr/include/arm-linux-gnueabihf/qt5/QtNetwork -I/usr/include/arm-linux-gnueabihf/qt5/QtSerialPort -I/usr/include/arm-linux-gnueabihf/qt5/QtSerialBus -I/usr/include/arm-linux-gnueabihf/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/arm-linux-gnueabihf/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/arm-linux-gnueabihf/11/include -I/usr/local/include -I/usr/include/arm-linux-gnueabihf -I/usr/include rnelapsedtimer.h -o moc_rnelapsedtimer.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -655,12 +682,20 @@ compiler_clean: compiler_rcc_clean compiler_moc_predefs_clean compiler_moc_heade
 colors.o: colors.cpp colors.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o colors.o colors.cpp
 
+gpio.o: gpio.cpp gpio.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o gpio.o gpio.cpp
+
 ioreader.o: ioreader.cpp ioreader.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ioreader.o ioreader.cpp
 
-main.o: main.cpp ioreader.h \
+main.o: main.cpp modbusController.h \
+		gpio.h \
+		ioreader.h \
 		rnelapsedtimer.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
+
+modbusController.o: modbusController.cpp modbusController.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o modbusController.o modbusController.cpp
 
 rnelapsedtimer.o: rnelapsedtimer.cpp rnelapsedtimer.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o rnelapsedtimer.o rnelapsedtimer.cpp
@@ -668,8 +703,14 @@ rnelapsedtimer.o: rnelapsedtimer.cpp rnelapsedtimer.h
 qrc_qml.o: qrc_qml.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qrc_qml.o qrc_qml.cpp
 
+moc_gpio.o: moc_gpio.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_gpio.o moc_gpio.cpp
+
 moc_ioreader.o: moc_ioreader.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_ioreader.o moc_ioreader.cpp
+
+moc_modbusController.o: moc_modbusController.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_modbusController.o moc_modbusController.cpp
 
 moc_rnelapsedtimer.o: moc_rnelapsedtimer.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_rnelapsedtimer.o moc_rnelapsedtimer.cpp

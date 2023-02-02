@@ -13,21 +13,25 @@ Item {
     property bool o2_isActive: false
     property string o2_header: "OXYGEN"
     property string o2_subHeader: "ICU RM 102,103,104"
+    property alias o2_hasError: oxygen.hasError
     // N2O
     // $#################################
     property bool n2o_isActive: false
     property string n2o_header: "NITROUS OXIDE"
     property string n2o_subHeader: "ICU RM 102,103,104"
+    property alias n2o_hasError: nitrousOxide.hasError
     // VAC
     // $#################################
     property bool vac_isActive: false
     property string vac_header: "VACUUM"
     property string vac_subHeader: "ICU RM 102,103,104"
+    property alias vac_hasError: vacuum.hasError
     // AIR
     // $#################################
     property bool air_isActive: false
     property string air_header: "MEDIACAL AIR"
     property string air_subHeader: "ICU RM 102,103,104"
+    property alias air_hasError: medicalAir.hasError
 
     Component.onCompleted: {
         root.calcPositions();
@@ -103,7 +107,6 @@ Item {
         mMin: 40
         mMax: 100
         mValue: 56
-        hasError: true
         type: 4
         visible: root.vac_isActive
         text_color: Colors.gradient_top_dark

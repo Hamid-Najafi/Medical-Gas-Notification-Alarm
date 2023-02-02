@@ -2,7 +2,7 @@
 
 # Copyleft (c) 2022.
 # -------==========-------
-# Ubuntu Server 22.04.01
+# Ubuntu Server 22.04.01 || Armbian 22.11 Jammy
 # Hostname: MGNA5-1
 # Username: fumpict
 # Password: 1478963
@@ -30,6 +30,11 @@ echo "-------------------------------------"
 echo "Set New Hostname: (MGNA-Floor-Room)"
 read hostname
 hostnamectl set-hostname $hostname
+string="$hostname"
+file="/etc/hosts"
+if ! grep -q "$string" "$file"; then
+  printf "\n%s" "127.0.0.1 $hostname" >> "$file"
+fi
 echo "-------------------------------------"
 echo "Setting TimeZone"
 echo "-------------------------------------"
@@ -45,12 +50,12 @@ echo "-------------------------------------"
 echo "Installing Qt & Tools"
 echo "-------------------------------------"
 apt install -y mesa-common-dev libfontconfig1 libxcb-xinerama0 libglu1-mesa-dev
-apt install -q -y qt5* qttools5* qtmultimedia5* qtwebengine5* qtvirtualkeyboard* qtdeclarative* qt3d*
+apt install -q -y qt5* qttools5* qtmultimedia5* qtwebengine5* qtvirtualkeyboard* qtdeclarative5* qt3d5*
 apt install -q -y qtbase5* 
 apt install -q -y libqt5*
 apt install -q -y qml-module*
 echo "-------------------------------------"
-echo "Installing Contold Panel Application"
+echo "Installing MGNA Application"
 echo "-------------------------------------"
 url="https://github.com/Hamid-Najafi/Medical-Gas-Notification-Alarm.git"
 
@@ -65,12 +70,11 @@ git clone "${url}" "${folder}"
 cd /home/fumpict/Medical-Gas-Notification-Alarm/MGNA
 touch -r *.*
 qmake
-make -j4 
+make -j2
 
 chown -R fumpict:fumpict /home/fumpict/Medical-Gas-Notification-Alarm
-ln -s /home/fumpict/Medical-Gas-Notification-Alarm/MGNA/passBox /home/fumpict/Medical-Gas-Notification-Alarm/MGNA/mgna
 echo "-------------------------------------"
-echo "Creating Service for Contold Panel Application"
+echo "Creating Service for MGNA Application"
 echo "-------------------------------------"
 journalctl --vacuum-time=60d
 loginctl enable-linger fumpict
@@ -81,31 +85,36 @@ Description=FUMP-ICT Medical Gas Notification Alarm v1.0
 
 [Service]
 Type=idle
-Environment="QT_QPA_EGLFS_HIDECURSOR=1"
-ExecStart=/home/fumpict/Medical-Gas-Notification-Alarm/MGNA/mgna -platform eglfs
+Environment="XDG_RUNTIME_DIR=/run/user/1000"
+Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=$XDG_RUNTIME_DIR/bus"
+Environment="QT_QPA_PLATFORM=eglfs"
+Environment="QT_QPA_EGLFS_ALWAYS_SET_MODE=1"
+# Environment="QT_QPA_EGLFS_HIDECURSOR=1"
+ExecStart=/home/fumpict/Medical-Gas-Notification-Alarm/MGNA/MGNA -platform eglfs
 Restart=always
-User=root
+# User=root
+
 [Install]
 WantedBy=default.target
 EOF
 
 systemctl daemon-reload
 systemctl enable mgna
-
+systemctl restart mgna
 echo "-------------------------------------"
 echo "Configuring Splash Screen"
 echo "-------------------------------------"
-File=/boot/cmdline.txt
-String=\ quiet\ splash\ plymouth.ignore-serial-consoles
-if grep -q "$String" "$File"; then
-echo "Boot CMDLINE OK"
-else
-truncate -s-1 "$File"
-echo -n "$String" >> /boot/cmdline.txt
-fi
+# File=/boot/cmdline.txt
+# String=\ quiet\ splash\ plymouth.ignore-serial-consoles
+# if grep -q "$String" "$File"; then
+# echo "Boot CMDLINE OK"
+# else
+# truncate -s-1 "$File"
+# echo -n "$String" >> /boot/cmdline.txt
+# fi
 
-sudo nano /boot/config.txt
-disable_splash=1
+# sudo nano /boot/config.txt
+# disable_splash=1
 
 apt -y autoremove --purge plymouth
 apt -y install plymouth plymouth-themes

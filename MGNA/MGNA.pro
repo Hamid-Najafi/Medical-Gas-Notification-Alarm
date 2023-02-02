@@ -1,4 +1,4 @@
-QT += quick virtualkeyboard
+QT += quick virtualkeyboard  serialport serialbus
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -6,12 +6,13 @@ QT += quick virtualkeyboard
 
 SOURCES += \
         colors.cpp \
+        gpio.cpp \
         ioreader.cpp \
         main.cpp \
+        modbusController.cpp \
         rnelapsedtimer.cpp
 
 RESOURCES += qml.qrc
-
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
@@ -26,6 +27,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     colors.h \
+    gpio.h \
     ioreader.h \
+    modbusController.h \
     rnelapsedtimer.h
 

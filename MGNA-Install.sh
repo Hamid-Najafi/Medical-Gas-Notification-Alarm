@@ -46,16 +46,20 @@ echo "Installing Pre-Requirements"
 echo "-------------------------------------"
 export DEBIAN_FRONTEND=noninteractive
 apt update && apt upgrade -y
-apt install -y software-properties-common git avahi-daemon python3-pip 
-apt install -y debhelper build-essential gcc g++ gdb cmake 
+apt install -y avahi-daemon cmake
+# apt install -y software-properties-common git avahi-daemon python3-pip 
+# apt install -y debhelper build-essential gcc g++ gdb cmake 
 echo "-------------------------------------"
 echo "Installing Qt & Tools"
 echo "-------------------------------------"
 apt install -y mesa-common-dev libfontconfig1 libxcb-xinerama0 libglu1-mesa-dev
-apt install -q -y qt5* qttools5* qtmultimedia5* qtwebengine5* qtvirtualkeyboard* qtdeclarative5* qt3d5*
-apt install -q -y qtbase5* 
-apt install -q -y libqt5*
-apt install -q -y qml-module*
+
+# apt install -q -y "qt5*" "qttools5*" qtbase5* "qtmultimedia5*" "qtwebengine5*" "qtvirtualkeyboard*" "qtdeclarative5*" "qt3d5*"
+apt install -q -y"qt5-qmake*" "qttools5*" "qtdeclarative5*"
+# apt install -q -y "qtvirtualkeyboard*"
+# apt install -q -y libqt5*
+apt install -q -y "libqt5serialbus5*" "libqt5serialport5*" "libqt5virtualkeyboard5*"
+apt install -q -y "qml-module*"
 echo "-------------------------------------"
 echo "Installing MGNA Application"
 echo "-------------------------------------"
@@ -91,10 +95,10 @@ Environment="XDG_RUNTIME_DIR=/run/user/1000"
 Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=$XDG_RUNTIME_DIR/bus"
 Environment="QT_QPA_PLATFORM=eglfs"
 Environment="QT_QPA_EGLFS_ALWAYS_SET_MODE=1"
-# Environment="QT_QPA_EGLFS_HIDECURSOR=1"
+Environment="QT_QPA_EGLFS_HIDECURSOR=1"
 ExecStart=/home/fumpict/Medical-Gas-Notification-Alarm/MGNA/MGNA -platform eglfs
 Restart=always
-User=c1tech
+User=fumpict
 
 [Install]
 WantedBy=default.target
@@ -103,27 +107,29 @@ EOF
 systemctl daemon-reload
 systemctl enable mgna
 systemctl restart mgna
+# systemctl status mgna
+# journalctl -u mgna.service -f 
 echo "-------------------------------------"
 echo "Configuring Splash Screen"
 echo "-------------------------------------"
-apt -y autoremove --purge plymouth
-apt -y install plymouth plymouth-themes
-# plymouth-set-default-theme --list
-sudo plymouth-set-default-theme spinner
+# apt -y autoremove --purge plymouth
+# apt -y install plymouth plymouth-themes
+# # plymouth-set-default-theme --list
+# sudo plymouth-set-default-theme spinner
 
-# By default ubuntu-text is active 
-# /usr/share/plymouth/themes/ubuntu-text/ubuntu-text.plymouth
-# We Will use bgrt (which is same as spinner but manufacture logo is enabled) theme with our custom logo
-cp /usr/share/plymouth/themes/spinner/bgrt-fallback.png{,.bak}
-cp /usr/share/plymouth/themes/spinner/watermark.png{,.bak}
-cp /usr/share/plymouth/ubuntu-logo.png{,.bak}
+# # By default ubuntu-text is active 
+# # /usr/share/plymouth/themes/ubuntu-text/ubuntu-text.plymouth
+# # We Will use bgrt (which is same as spinner but manufacture logo is enabled) theme with our custom logo
+# cp /usr/share/plymouth/themes/spinner/bgrt-fallback.png{,.bak}
+# cp /usr/share/plymouth/themes/spinner/watermark.png{,.bak}
+# cp /usr/share/plymouth/ubuntu-logo.png{,.bak}
 
-# This Comes abow Spinner
-cp /home/fumpict/Medical-Gas-Notification-Alarm/bgrt-c1.png /usr/share/plymouth/ubuntu-logo.png
-# This Comes bellow Spinner
-cp /home/fumpict/Medical-Gas-Notification-Alarm/bgrt-c1.png /usr/share/plymouth/themes/spinner/watermark.png
+# # This Comes abow Spinner
+# cp /home/fumpict/Medical-Gas-Notification-Alarm/bgrt-c1.png /usr/share/plymouth/ubuntu-logo.png
+# # This Comes bellow Spinner
+# cp /home/fumpict/Medical-Gas-Notification-Alarm/bgrt-c1.png /usr/share/plymouth/themes/spinner/watermark.png
 
-update-initramfs -u
+# update-initramfs -u
 # update-alternatives --list default.plymouth
 # update-alternatives --display default.plymouth
 # update-alternatives --config default.plymouth

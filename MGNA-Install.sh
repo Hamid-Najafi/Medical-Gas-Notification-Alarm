@@ -13,8 +13,8 @@
 echo "-------------------------------------"
 echo "Configuring User & Groups"
 echo "-------------------------------------"
-adduser fumpict --gecos "FUMP ICT,RoomNumber,WorkPhone,HomePhone" --disabled-password
-echo "fumpict:1478963" | chpasswd
+# adduser fumpict --gecos "FUMP ICT,RoomNumber,WorkPhone,HomePhone" --disabled-password
+# echo "fumpict:1478963" | chpasswd
 usermod -a -G sudo fumpict
 usermod -a -G dialout fumpict
 usermod -a -G audio fumpict
@@ -117,9 +117,9 @@ cp /usr/share/plymouth/themes/spinner/watermark.png{,.bak}
 cp /usr/share/plymouth/ubuntu-logo.png{,.bak}
 
 # This Comes abow Spinner
-cp /home/c1tech/C1-PassBox/bgrt-c1.png /usr/share/plymouth/ubuntu-logo.png
+cp /home/fumpict/Medical-Gas-Notification-Alarm/bgrt-c1.png /usr/share/plymouth/ubuntu-logo.png
 # This Comes bellow Spinner
-cp /home/c1tech/C1-PassBox/bgrt-c1.png /usr/share/plymouth/themes/spinner/watermark.png
+cp /home/fumpict/Medical-Gas-Notification-Alarm/bgrt-c1.png /usr/share/plymouth/themes/spinner/watermark.png
 
 update-initramfs -u
 # update-alternatives --list default.plymouth

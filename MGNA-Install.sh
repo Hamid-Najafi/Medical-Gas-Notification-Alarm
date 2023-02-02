@@ -50,15 +50,25 @@ apt install -y avahi-daemon cmake
 # apt install -y software-properties-common git avahi-daemon python3-pip 
 # apt install -y debhelper build-essential gcc g++ gdb cmake 
 echo "-------------------------------------"
+echo "RASPBERRY & ORANGEPI"
+echo "-------------------------------------"
+git clone https://github.com/orangepi-xunlong/wiringOP   
+./build clean
+./build 
+echo "-------------------------------------"
 echo "Installing Qt & Tools"
 echo "-------------------------------------"
 apt install -y mesa-common-dev libfontconfig1 libxcb-xinerama0 libglu1-mesa-dev
 
+# QT5 Components
 # apt install -q -y "qt5*" "qttools5*" qtbase5* "qtmultimedia5*" "qtwebengine5*" "qtvirtualkeyboard*" "qtdeclarative5*" "qt3d5*"
-apt install -q -y"qt5-qmake*" "qttools5*" "qtdeclarative5*"
-# apt install -q -y "qtvirtualkeyboard*"
+apt install -q -y"qt5-qmake*" "qttools5*" "qtdeclarative5*" "qtvirtualkeyboard*"
+
+# QT5 LIB Components
 # apt install -q -y libqt5*
 apt install -q -y "libqt5serialbus5*" "libqt5serialport5*" "libqt5virtualkeyboard5*"
+
+# QT5 QML Components
 apt install -q -y "qml-module*"
 echo "-------------------------------------"
 echo "Installing MGNA Application"
@@ -79,6 +89,7 @@ qmake
 make -j2
 
 chown -R fumpict:fumpict /home/fumpict/Medical-Gas-Notification-Alarm
+chmod +x /home/fumpict/Medical-Gas-Notification-Alarm/ExecStart.sh
 echo "-------------------------------------"
 echo "Creating Service for MGNA Application"
 echo "-------------------------------------"
@@ -96,7 +107,7 @@ Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=$XDG_RUNTIME_DIR/bus"
 Environment="QT_QPA_PLATFORM=eglfs"
 Environment="QT_QPA_EGLFS_ALWAYS_SET_MODE=1"
 Environment="QT_QPA_EGLFS_HIDECURSOR=1"
-ExecStart=/home/fumpict/Medical-Gas-Notification-Alarm/MGNA/MGNA -platform eglfs
+ExecStart=/bin/sh -c '/home/fumpict/Medical-Gas-Notification-Alarm/ExecStart.sh'
 Restart=always
 User=fumpict
 

@@ -92,7 +92,7 @@ Environment="QT_QPA_EGLFS_ALWAYS_SET_MODE=1"
 # Environment="QT_QPA_EGLFS_HIDECURSOR=1"
 ExecStart=/home/fumpict/Medical-Gas-Notification-Alarm/MGNA/MGNA -platform eglfs
 Restart=always
-# User=root
+User=c1tech
 
 [Install]
 WantedBy=default.target
@@ -104,18 +104,6 @@ systemctl restart mgna
 echo "-------------------------------------"
 echo "Configuring Splash Screen"
 echo "-------------------------------------"
-# File=/boot/cmdline.txt
-# String=\ quiet\ splash\ plymouth.ignore-serial-consoles
-# if grep -q "$String" "$File"; then
-# echo "Boot CMDLINE OK"
-# else
-# truncate -s-1 "$File"
-# echo -n "$String" >> /boot/cmdline.txt
-# fi
-
-# sudo nano /boot/config.txt
-# disable_splash=1
-
 apt -y autoremove --purge plymouth
 apt -y install plymouth plymouth-themes
 # plymouth-set-default-theme --list
@@ -127,8 +115,12 @@ sudo plymouth-set-default-theme spinner
 cp /usr/share/plymouth/themes/spinner/bgrt-fallback.png{,.bak}
 cp /usr/share/plymouth/themes/spinner/watermark.png{,.bak}
 cp /usr/share/plymouth/ubuntu-logo.png{,.bak}
-# cp /home/fumpict/Medical-Gas-Notification-Alarm/bgrt-c1.png /usr/share/plymouth/themes/spinner/bgrt-fallback.png
-cp /home/fumpict/Medical-Gas-Notification-Alarm/watermark-ict.png /usr/share/plymouth/themes/spinner/watermark.png
+
+# This Comes abow Spinner
+cp /home/c1tech/C1-PassBox/bgrt-c1.png /usr/share/plymouth/ubuntu-logo.png
+# This Comes bellow Spinner
+cp /home/c1tech/C1-PassBox/bgrt-c1.png /usr/share/plymouth/themes/spinner/watermark.png
+
 update-initramfs -u
 # update-alternatives --list default.plymouth
 # update-alternatives --display default.plymouth

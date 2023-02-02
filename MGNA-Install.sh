@@ -36,9 +36,11 @@ if ! grep -q "$string" "$file"; then
   printf "\n%s" "127.0.0.1 $hostname" >> "$file"
 fi
 echo "-------------------------------------"
-echo "Setting TimeZone"
+echo "Setting TimeZone & Locale"
 echo "-------------------------------------"
 timedatectl set-timezone Asia/Tehran 
+locale-gen fa_IR
+locale-gen
 echo "-------------------------------------"
 echo "Installing Pre-Requirements"
 echo "-------------------------------------"

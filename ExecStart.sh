@@ -1,3 +1,4 @@
+# WiringPi (Wiring OP)
 gpio mode 2 in
 gpio mode 7 in
 gpio mode 1 in

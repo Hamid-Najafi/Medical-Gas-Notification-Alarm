@@ -50,9 +50,16 @@ apt install -y avahi-daemon cmake
 # apt install -y software-properties-common git avahi-daemon python3-pip 
 # apt install -y debhelper build-essential gcc g++ gdb cmake 
 echo "-------------------------------------"
-echo "RASPBERRY & ORANGEPI"
+echo "Installing GPIO Libraries"
 echo "-------------------------------------"
+# echo "Wiring RaspberryPI"
+# git clone https://github.com/WiringPi/WiringPi.git
+# cd /home/c1tech/WiringPi
+# ./build clean
+# ./build  
+echo "Wiring OrangePI"
 git clone https://github.com/orangepi-xunlong/wiringOP   
+cd /home/fumpict/wiringOP
 ./build clean
 ./build 
 echo "-------------------------------------"
@@ -62,7 +69,7 @@ apt install -y mesa-common-dev libfontconfig1 libxcb-xinerama0 libglu1-mesa-dev
 
 # QT5 Components
 # apt install -q -y "qt5*" "qttools5*" qtbase5* "qtmultimedia5*" "qtwebengine5*" "qtvirtualkeyboard*" "qtdeclarative5*" "qt3d5*"
-apt install -q -y"qt5-qmake*" "qttools5*" "qtdeclarative5*" "qtvirtualkeyboard*"
+apt install -q -y "qt5-qmake*" "qttools5*" "qtdeclarative5*" "qtvirtualkeyboard*"
 
 # QT5 LIB Components
 # apt install -q -y libqt5*
@@ -90,6 +97,7 @@ make -j2
 
 chown -R fumpict:fumpict /home/fumpict/Medical-Gas-Notification-Alarm
 chmod +x /home/fumpict/Medical-Gas-Notification-Alarm/ExecStart.sh
+chmod +x /home/fumpict/Medical-Gas-Notification-Alarm/MGNA/MGNA
 echo "-------------------------------------"
 echo "Creating Service for MGNA Application"
 echo "-------------------------------------"
@@ -102,14 +110,16 @@ Description=FUMP-ICT Medical Gas Notification Alarm v1.0
 
 [Service]
 Type=idle
-Environment="XDG_RUNTIME_DIR=/run/user/1000"
-Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=$XDG_RUNTIME_DIR/bus"
+# Environment="XDG_RUNTIME_DIR=/run/user/1000"
+# Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=$XDG_RUNTIME_DIR/bus"
 Environment="QT_QPA_PLATFORM=eglfs"
 Environment="QT_QPA_EGLFS_ALWAYS_SET_MODE=1"
 Environment="QT_QPA_EGLFS_HIDECURSOR=1"
+# Environment="QT_QPA_EGLFS_PHYSICAL_WIDTH=1280"
+# Environment="QT_QPA_EGLFS_PHYSICAL_HEIGHT=1024"
 ExecStart=/bin/sh -c '/home/fumpict/Medical-Gas-Notification-Alarm/ExecStart.sh'
 Restart=always
-User=fumpict
+User=root
 
 [Install]
 WantedBy=default.target

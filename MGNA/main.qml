@@ -105,10 +105,10 @@ Window {
 
 
             if(!root.isInited) return;
-            let in1 = !gpio.gpio_get_value(root.gpio_number_input1);
-            let in2 = !gpio.gpio_get_value(root.gpio_number_input2);
-            let in3 = !gpio.gpio_get_value(root.gpio_number_input3);
-            let in4 = !gpio.gpio_get_value(root.gpio_number_input4);
+            let in1 = gpio.gpio_get_value(root.gpio_number_input1);
+            let in2 = gpio.gpio_get_value(root.gpio_number_input2);
+            let in3 = gpio.gpio_get_value(root.gpio_number_input3);
+            let in4 = gpio.gpio_get_value(root.gpio_number_input4);
             modbusController.setDiscreteInputWithId(1,in1);
             dashboard.o2_hasError = in1;
             modbusController.setDiscreteInputWithId(3,in2);

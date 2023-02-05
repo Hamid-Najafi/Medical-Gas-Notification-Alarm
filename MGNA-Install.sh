@@ -53,13 +53,20 @@ echo "-------------------------------------"
 echo "Installing GPIO Libraries"
 echo "-------------------------------------"
 # echo "Wiring RaspberryPI"
-# git clone https://github.com/WiringPi/WiringPi.git
-# cd /home/c1tech/WiringPi
+# url="https://github.com/WiringPi/WiringPi.git"
+# folder="/home/fumpict/wiringPi"
+# [ -d "${folder}" ] && rm -rf "${folder}"
+# git clone "${url}" "${folder}"
+# cd "${folder}"
 # ./build clean
 # ./build  
+
 echo "Wiring OrangePI"
-git clone https://github.com/orangepi-xunlong/wiringOP   
-cd /home/fumpict/wiringOP
+url="https://github.com/orangepi-xunlong/wiringOP"
+folder="/home/fumpict/wiringOP"
+[ -d "${folder}" ] && rm -rf "${folder}"
+git clone "${url}" "${folder}"
+cd "${folder}"
 ./build clean
 ./build 
 echo "-------------------------------------"
@@ -110,8 +117,8 @@ Description=FUMP-ICT Medical Gas Notification Alarm v1.0
 
 [Service]
 Type=idle
-# Environment="XDG_RUNTIME_DIR=/run/user/1000"
-# Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=$XDG_RUNTIME_DIR/bus"
+Environment="XDG_RUNTIME_DIR=/run/user/0"
+Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=$XDG_RUNTIME_DIR/bus"
 Environment="QT_QPA_PLATFORM=eglfs"
 Environment="QT_QPA_EGLFS_ALWAYS_SET_MODE=1"
 Environment="QT_QPA_EGLFS_HIDECURSOR=1"
